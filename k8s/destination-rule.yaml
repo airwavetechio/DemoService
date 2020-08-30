@@ -1,0 +1,14 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: demoservice
+spec:
+  host: demoservice
+  subsets:
+  - name: baseline
+    labels:
+      version: demoservice-baseline
+  - name: routea
+    labels:
+      version: demoservice-routea

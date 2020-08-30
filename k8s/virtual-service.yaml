@@ -1,0 +1,30 @@
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  namespace: dev
+  name: demoservice
+spec:
+  hosts:
+  - "demo.dev.lamdax.com"
+  gateways:
+  - devgateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        port:
+          number: 80
+        host: demoservice-svc
+        subset: baseline
+        weight: 90
+  - route:
+    - destination:
+        port:
+          number: 80
+        host: demoservice-svc
+        subset: routea
+        weight: 10

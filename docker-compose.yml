@@ -1,0 +1,7 @@
+version: '3'
+services:
+  demoservice:
+    build: .
+    command: npm start
+    ports:
+      - 5000:5000

@@ -1,5 +1,5 @@
-# DevOps demo app
-This container is using express to hose some js on port 5000.
+# DemoService
+This container is using express to host some js on port 5000.
 
 ## To build the container locally
 `docker build -t airwavetechio/demoservice .`
