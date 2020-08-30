@@ -1,0 +1,184 @@
+{
+  "appConfig": {},
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "anonymous",
+  "limitConcurrent": true,
+  "parameterConfig": [
+    {
+      "default": "dev",
+      "description": "",
+      "hasOptions": false,
+      "label": "",
+      "name": "namespace",
+      "options": [
+        {
+          "value": "dev"
+        },
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": true
+    },
+    {
+      "default": "${ trigger['tag'] }",
+      "description": "Parameterized Docker Image you need not touch ${ trigger['tag'] }",
+      "hasOptions": false,
+      "label": "",
+      "name": "dockertag",
+      "options": [
+        {
+          "value": "${ trigger['tag'] }"
+        },
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": false
+    },
+    {
+      "default": "baseline",
+      "description": "",
+      "hasOptions": true,
+      "label": "",
+      "name": "routepath",
+      "options": [
+        {
+          "value": "baseline"
+        },
+        {
+          "value": "routea"
+        }
+      ],
+      "pinned": false,
+      "required": true
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "spinnaker-service-account",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "v1",
+          "kind": "Service",
+          "metadata": {
+            "labels": {
+              "app": "demoservice"
+            },
+            "name": "demoservice-svc",
+            "namespace": "${ parameters.namespace }"
+          },
+          "spec": {
+            "ports": [
+              {
+                "name": "http",
+                "port": 8080,
+                "targetPort": 5000
+              }
+            ],
+            "selector": {
+              "app": "demoservice"
+            }
+          }
+        },
+        {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "metadata": {
+            "labels": {
+              "app": "demoservice",
+              "version": "demoservice-${ parameters.routepath }"
+            },
+            "name": "demoservice-${ parameters.routepath }",
+            "namespace": "${ parameters.namespace }"
+          },
+          "spec": {
+            "replicas": 1,
+            "selector": {
+              "matchLabels": {
+                "app": "demoservice"
+              }
+            },
+            "template": {
+              "metadata": {
+                "annotations": {
+                  "prometheus.io/path": "/metrics",
+                  "prometheus.io/port": "5000",
+                  "prometheus.io/scrape": "true"
+                },
+                "labels": {
+                  "app": "demoservice",
+                  "version": "demoservice-${ parameters.routepath }"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "env": [
+                      {
+                        "name": "PORT",
+                        "value": "5000"
+                      }
+                    ],
+                    "image": "airwavetechio/demoservice:${ parameters.dockertag }",
+                    "imagePullPolicy": "Always",
+                    "name": "demoservice",
+                    "ports": [
+                      {
+                        "containerPort": 5000,
+                        "name": "liveness-port"
+                      }
+                    ],
+                    "resources": {
+                      "limits": {
+                        "cpu": "25m",
+                        "memory": "50Mi"
+                      },
+                      "requests": {
+                        "cpu": "25m",
+                        "memory": "50Mi"
+                      }
+                    }
+                  }
+                ],
+                "restartPolicy": "Always"
+              }
+            }
+          }
+        }
+      ],
+      "moniker": {
+        "app": "demoservice"
+      },
+      "name": "Deploy Image",
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    }
+  ],
+  "triggers": [
+    {
+      "account": "my-docker-registry",
+      "description": "(Docker Registry) my-docker-registry: airwavetechio/demoservice",
+      "enabled": true,
+      "organization": "lamdax",
+      "registry": "index.docker.io",
+      "repository": "airwavetechio/demoservice",
+      "type": "docker"
+    }
+  ],
+  "updateTs": "1590618617000"
+}

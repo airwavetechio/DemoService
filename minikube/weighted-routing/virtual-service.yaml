@@ -1,0 +1,28 @@
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  namespace: dev
+  name: demoservice
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - istio-ingressgateway.istio-system.svc.cluster.local
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: demoservice-svc
+        subset: baseline
+        port:
+          number: 8080
+      weight: 90
+    - destination:
+        host: demoservice-svc
+        subset: routea
+        port:
+          number: 8080
+      weight: 10

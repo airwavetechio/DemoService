@@ -1,0 +1,613 @@
+{
+  "appConfig": {},
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "anonymous",
+  "limitConcurrent": true,
+  "parameterConfig": [
+    {
+      "default": "dev",
+      "description": "",
+      "hasOptions": false,
+      "label": "",
+      "name": "namespace",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": true
+    },
+    {
+      "default": "${ trigger['tag'] }",
+      "description": "Parameterized Docker Image you need not touch ${ trigger['tag'] }",
+      "hasOptions": false,
+      "label": "",
+      "name": "dockertag",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": false
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "spinnaker-service-account",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "networking.istio.io/v1beta1",
+          "kind": "VirtualService",
+          "metadata": {
+            "name": "demoservice",
+            "namespace": "dev"
+          },
+          "spec": {
+            "gateways": [
+              "devgateway"
+            ],
+            "hosts": [
+              "*"
+            ],
+            "http": [
+              {
+                "match": [
+                  {
+                    "uri": {
+                      "prefix": "/"
+                    }
+                  }
+                ],
+                "route": [
+                  {
+                    "destination": {
+                      "host": "demoservice-svc",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "baseline"
+                    },
+                    "weight": 95
+                  },
+                  {
+                    "destination": {
+                      "host": "demoservice-svc",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "routea"
+                    },
+                    "weight": 5
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "moniker": {
+        "app": "manualcanary"
+      },
+      "name": "Manual Canary RouteA 5%",
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "11"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "failPipeline": true,
+      "judgmentInputs": [
+        {
+          "value": "yes"
+        },
+        {
+          "value": "no"
+        }
+      ],
+      "name": "Manual Canary5 Looks good?",
+      "notifications": [],
+      "refId": "3",
+      "requisiteStageRefIds": [
+        "2"
+      ],
+      "type": "manualJudgment"
+    },
+    {
+      "account": "spinnaker-service-account",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "networking.istio.io/v1beta1",
+          "kind": "VirtualService",
+          "metadata": {
+            "name": "demoservice",
+            "namespace": "dev"
+          },
+          "spec": {
+            "gateways": [
+              "devgateway"
+            ],
+            "hosts": [
+              "*"
+            ],
+            "http": [
+              {
+                "match": [
+                  {
+                    "uri": {
+                      "prefix": "/"
+                    }
+                  }
+                ],
+                "route": [
+                  {
+                    "destination": {
+                      "host": "demoservice-svc",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "baseline"
+                    },
+                    "weight": 50
+                  },
+                  {
+                    "destination": {
+                      "host": "demoservice-svc",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "routea"
+                    },
+                    "weight": 50
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "moniker": {
+        "app": "manualcanary"
+      },
+      "name": "Manual Canary RouteA 50%",
+      "refId": "4",
+      "requisiteStageRefIds": [
+        "3"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "stageEnabled": {
+        "expression": "${ #judgment(\"Manual Canary5 Looks good?\").equals(\"yes\")}",
+        "type": "expression"
+      },
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "failPipeline": true,
+      "judgmentInputs": [
+        {
+          "value": "yes"
+        },
+        {
+          "value": "no"
+        }
+      ],
+      "name": "RouteA Canary50 Looks good?",
+      "notifications": [],
+      "refId": "5",
+      "requisiteStageRefIds": [
+        "4"
+      ],
+      "stageEnabled": {
+        "expression": "${ #judgment(\"Manual Canary5 Looks good?\").equals(\"yes\")}",
+        "type": "expression"
+      },
+      "type": "manualJudgment"
+    },
+    {
+      "account": "spinnaker-service-account",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "networking.istio.io/v1beta1",
+          "kind": "VirtualService",
+          "metadata": {
+            "name": "demoservice",
+            "namespace": "dev"
+          },
+          "spec": {
+            "gateways": [
+              "devgateway"
+            ],
+            "hosts": [
+              "*"
+            ],
+            "http": [
+              {
+                "match": [
+                  {
+                    "uri": {
+                      "prefix": "/"
+                    }
+                  }
+                ],
+                "route": [
+                  {
+                    "destination": {
+                      "host": "demoservice-svc",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "baseline"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "moniker": {
+        "app": "manualcanary"
+      },
+      "name": "Baseline 100%",
+      "refId": "7",
+      "requisiteStageRefIds": [
+        "8"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "stageEnabled": {
+        "expression": "${ #judgment(\"Baseline Looks good?\").equals(\"yes\")}",
+        "type": "expression"
+      },
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "failPipeline": true,
+      "judgmentInputs": [
+        {
+          "value": "yes"
+        },
+        {
+          "value": "no"
+        }
+      ],
+      "name": "Baseline Looks good?",
+      "notifications": [],
+      "refId": "8",
+      "requisiteStageRefIds": [
+        "12"
+      ],
+      "stageEnabled": {
+        "expression": "${ #judgment(\"RouteA Canary50 Looks good?\").equals(\"yes\")}",
+        "type": "expression"
+      },
+      "type": "manualJudgment"
+    },
+    {
+      "account": "spinnaker-service-account",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "networking.istio.io/v1beta1",
+          "kind": "VirtualService",
+          "metadata": {
+            "name": "demoservice",
+            "namespace": "dev"
+          },
+          "spec": {
+            "gateways": [
+              "devgateway"
+            ],
+            "hosts": [
+              "*"
+            ],
+            "http": [
+              {
+                "match": [
+                  {
+                    "uri": {
+                      "prefix": "/"
+                    }
+                  }
+                ],
+                "route": [
+                  {
+                    "destination": {
+                      "host": "demoservice-svc",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "baseline"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "moniker": {
+        "app": "manualcanary"
+      },
+      "name": "RollBack Canary RouteA 5%",
+      "refId": "9",
+      "requisiteStageRefIds": [
+        "3"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "stageEnabled": {
+        "expression": "${ #judgment(\"Manual Canary5 Looks good?\").equals(\"no\")}",
+        "type": "expression"
+      },
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "account": "spinnaker-service-account",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "networking.istio.io/v1beta1",
+          "kind": "VirtualService",
+          "metadata": {
+            "name": "demoservice",
+            "namespace": "dev"
+          },
+          "spec": {
+            "gateways": [
+              "devgateway"
+            ],
+            "hosts": [
+              "*"
+            ],
+            "http": [
+              {
+                "match": [
+                  {
+                    "uri": {
+                      "prefix": "/"
+                    }
+                  }
+                ],
+                "route": [
+                  {
+                    "destination": {
+                      "host": "demoservice-svc",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "baseline"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "moniker": {
+        "app": "manualcanary"
+      },
+      "name": "RollBack Canary RouteA 50%",
+      "refId": "10",
+      "requisiteStageRefIds": [
+        "5"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "stageEnabled": {
+        "expression": "${ #judgment(\"RouteA Canary50 Looks good?\").equals(\"no\")}",
+        "type": "expression"
+      },
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "application": "manualcanary",
+      "failPipeline": true,
+      "name": "Pipeline",
+      "pipeline": "eed3171a-bb05-4105-b181-980a208aa9e3",
+      "pipelineParameters": {
+        "dockertag": "${ trigger['tag'] }",
+        "routepath": "routea"
+      },
+      "refId": "11",
+      "requisiteStageRefIds": [
+        "14"
+      ],
+      "type": "pipeline",
+      "waitForCompletion": true
+    },
+    {
+      "application": "manualcanary",
+      "failPipeline": true,
+      "name": "Deployment Pipeline",
+      "pipeline": "eed3171a-bb05-4105-b181-980a208aa9e3",
+      "pipelineParameters": {
+        "dockertag": "${ trigger['tag'] }"
+      },
+      "refId": "12",
+      "requisiteStageRefIds": [
+        "13"
+      ],
+      "stageEnabled": {
+        "expression": "${ #judgment(\"RouteA Canary50 Looks good?\").equals(\"yes\")}",
+        "type": "expression"
+      },
+      "type": "pipeline",
+      "waitForCompletion": true
+    },
+    {
+      "account": "spinnaker-service-account",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "networking.istio.io/v1beta1",
+          "kind": "VirtualService",
+          "metadata": {
+            "name": "demoservice",
+            "namespace": "dev"
+          },
+          "spec": {
+            "gateways": [
+              "devgateway"
+            ],
+            "hosts": [
+              "*"
+            ],
+            "http": [
+              {
+                "match": [
+                  {
+                    "uri": {
+                      "prefix": "/"
+                    }
+                  }
+                ],
+                "route": [
+                  {
+                    "destination": {
+                      "host": "demoservice-svc",
+                      "port": {
+                        "number": 8080
+                      },
+                      "subset": "routea"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "moniker": {
+        "app": "manualcanary"
+      },
+      "name": "RouteA 100%",
+      "refId": "13",
+      "requisiteStageRefIds": [
+        "5"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "stageEnabled": {
+        "expression": "${ #judgment(\"RouteA Canary50 Looks good?\").equals(\"yes\")}",
+        "type": "expression"
+      },
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "account": "spinnaker-service-account",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "networking.istio.io/v1beta1",
+          "kind": "DestinationRule",
+          "metadata": {
+            "name": "demoservice",
+            "namespace": "dev"
+          },
+          "spec": {
+            "host": "demoservice-svc",
+            "subsets": [
+              {
+                "labels": {
+                  "version": "demoservice-baseline"
+                },
+                "name": "baseline"
+              },
+              {
+                "labels": {
+                  "version": "demoservice-routea"
+                },
+                "name": "routea"
+              }
+            ],
+            "trafficPolicy": {
+              "tls": {
+                "mode": "ISTIO_MUTUAL"
+              }
+            }
+          }
+        }
+      ],
+      "moniker": {
+        "app": "manualcanary"
+      },
+      "name": "Add Destination Rules",
+      "refId": "14",
+      "requisiteStageRefIds": [],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    }
+  ],
+  "triggers": [
+    {
+      "account": "my-docker-registry",
+      "enabled": true,
+      "organization": "lamdax",
+      "registry": "index.docker.io",
+      "repository": "airwavetechio/demoservice",
+      "type": "docker"
+    }
+  ],
+  "updateTs": "1590621188000"
+}

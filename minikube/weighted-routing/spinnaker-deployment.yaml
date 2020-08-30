@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: demoservice
+  name: demoservice-svc
+  namespace: '${ parameters.namespace }'
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 5000
+  selector:
+    app: demoservice
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: 'demoservice-${ parameters.routepath }'
+  name: 'demoservice-${ parameters.routepath }'
+  namespace: '${ parameters.namespace }'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demoservice
+  template:
+    metadata:
+      labels:
+        app: demoservice
+        version: 'demoservice-${ parameters.routepath }'
+    spec:
+      containers:
+        - env:
+            - name: PORT
+              value: '5000'
+          image: 'airwavetechio/demoservice:${ parameters.dockertag }'
+          imagePullPolicy: Always
+          name: demoservice
+          ports:
+            - containerPort: 5000
+              name: liveness-port
+          resources:
+            limits:
+              cpu: 25m
+              memory: 50Mi
+            requests:
+              cpu: 25m
+              memory: 50Mi
+      restartPolicy: Always
