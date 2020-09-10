@@ -1,0 +1,8 @@
+namespace: dev
+commonAnnotations:
+  magalix.com/kube-optimizer.cpu.limits: disabled
+images:
+  - name: airwavetechio/demoservice
+    newTag: v0.0.2
+resources:
+- deployment.yml

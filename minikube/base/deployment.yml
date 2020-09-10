@@ -1,28 +1,14 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: demoservice-svc
-  namespace: dev
-  labels:
-    app: demoservice
-spec:
-  ports:
-  - name: http
-    port: 80
-    targetPort: 5000
-  selector:
-    app: demoservice
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: demoservice
-  namespace: dev
+  annotations:
+    magalix.com/kube-optimizer.cpu.limits: disabled
   labels:
     app: demoservice
 spec:
   replicas: 1
-   selector:
+  selector:
     matchLabels:
       app: demoservice
   template:

@@ -19,6 +19,6 @@ app.get('/metrics', (request, response) => {
   response.send(promclient.register.metrics());
 });
 
-app.listen(app.get('port'), function() {
-  console.log("Node app is running at localhost:" + app.get('port'))
+app.listen(app.get('port'),'0.0.0.0', function() {
+  console.log("Node app is running on port:" + app.get('port'))
 });

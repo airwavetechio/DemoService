@@ -16,3 +16,10 @@ This container is using express to host some js on port 5000.
 
 ## To run docker-compose tests
 `docker-compose -f docker-compose.test.yml up  --build --force-recreate`
+
+
+## Test Kustomize
+```
+cd minikube
+kustomize build .
+```
