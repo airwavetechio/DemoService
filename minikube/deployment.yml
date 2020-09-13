@@ -35,12 +35,4 @@ spec:
             path: /
             port: liveness-port
           initialDelaySeconds: 3
-          periodSeconds: 5
-        resources:
-          limits:
-            cpu: 10m
-            memory: 25Mi
-          requests:
-            cpu: 10m
-            memory: 25Mi
       restartPolicy: Always
