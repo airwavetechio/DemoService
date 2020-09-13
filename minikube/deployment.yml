@@ -17,7 +17,7 @@ spec:
       containers:
       - name: demoservice
         command: ["node", "app.js"]
-        image: airwavetechio/demoservice:v0.0.1
+        image: airwavetechio/demoservice:v0.0.2
         env:
           - name: PORT
             value: "5000"
