@@ -23,3 +23,12 @@ This container is using express to host some js on port 5000.
 cd minikube
 kustomize build .
 ```
+
+
+## Deploy to minikube
+```
+cd minikube
+kubectl apply -f service.yml
+kubectl apply -f deployment.yml
+kubectl port-forward svc/demoservice 5000:5000
+```

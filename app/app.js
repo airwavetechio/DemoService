@@ -11,7 +11,7 @@ app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/app'));
 
 app.get('/', function(request, response) {
-  response.send('Welcome to the demoservice-RouteA!!!')
+  response.send('Welcome to the DemoService!!!\n If you see this, you have sucessfully deploy airwavetechio/demoservice')
 });
 
 app.get('/metrics', (request, response) => {
