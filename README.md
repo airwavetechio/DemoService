@@ -32,3 +32,4 @@ kubectl apply -f service.yml
 kubectl apply -f deployment.yml
 kubectl port-forward svc/demoservice 5000:5000
 ```
+`http://localhost:5000`
