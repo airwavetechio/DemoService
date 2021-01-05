@@ -10,5 +10,8 @@
       "express": "4.17.1",
       "prom-client": "13.0.0",
       "express-prom-bundle": "6.3.1"
+    },
+    "devDependencies": {
+      "cookie": "0.4.1"
     }
   }
