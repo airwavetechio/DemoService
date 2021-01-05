@@ -17,7 +17,6 @@ spec:
       containers:
       - name: demoservice
         command: ["node", "app.js"]
-        
         image: airwavetechio/demoservice:v0.0.2
         env:
           - name: PORT
@@ -30,23 +29,3 @@ spec:
           allowPrivilegeEscalation: true
           capabilities: 
             add: ["SYS_ADMIN"]
-      #   livenessProbe:
-      #     httpGet:
-      #       path: /
-      #       port: liveness-port
-      #     initialDelaySeconds: 3
-      #     periodSeconds: 5
-      #   readinessProbe:
-      #     httpGet:
-      #       path: /
-      #       port: liveness-port
-      #     initialDelaySeconds: 3
-      #     periodSeconds: 5
-      #   resources:
-      #     limits:
-      #       cpu: 10m
-      #       memory: 25Mi
-      #     requests:
-      #       cpu: 10m
-      #       memory: 25Mi
-      # restartPolicy: Always
