@@ -1,4 +1,5 @@
 FROM node:alpine
+ENV NODE_ENV production
 WORKDIR /app
 COPY ./app /app
 RUN chmod +x ./run_tests.sh
