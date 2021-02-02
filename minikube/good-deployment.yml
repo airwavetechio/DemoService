@@ -43,9 +43,9 @@ spec:
           periodSeconds: 3
         resources:
           limits:
-            cpu: 10m
-            memory: 50Mi
+            cpu: 100m
+            memory: 150Mi
           requests:
-            cpu: 10m
-            memory: 50Mi
+            cpu: 100m
+            memory: 150Mi
       restartPolicy: Always
